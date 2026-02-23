@@ -15,7 +15,7 @@ from app.services.recommender import (
 from app.services.parser import parse_resume
 from app.services.skill_extractor import load_skills, extract_skills_from_text
 from app.services.similarity import calculate_similarity
-
+from app.services.skill_gap_analyzer import classify_skill_gaps
 
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
@@ -57,6 +57,7 @@ if st.button("Analyze Resume"):
         )
 
         missing_skills = get_missing_skills(resume_skills, jd_skills)
+        gap_analysis = classify_skill_gaps(missing_skills, jd_skills)
         matching_skills = get_matching_skills(resume_skills, jd_skills)
 
         feedback = generate_feedback(match_score, missing_skills)
@@ -110,11 +111,25 @@ if st.button("Analyze Resume"):
             st.write(matching_skills)
 
         with col2:
-            st.subheader("❌ Missing Skills")
-            st.write(missing_skills)
+            st.subheader("🎯 Skill Gap Severity Analysis")
 
-        st.subheader("💡 Feedback")
-        st.write(feedback)
+            if gap_analysis["critical"]:
+                st.error("🔴 Critical Skills Missing")
+                for skill in gap_analysis["critical"]:
+                    st.markdown(f"- **{skill.upper()}**")
+
+            if gap_analysis["important"]:
+                st.warning("🟡 Important Skills Missing")
+                for skill in gap_analysis["important"]:
+                    st.markdown(f"- {skill.upper()}")
+
+            if gap_analysis["optional"]:
+                st.info("🟢 Optional Skills Missing")
+                for skill in gap_analysis["optional"]:
+                    st.markdown(f"- {skill.upper()}")
+
+                    st.subheader("💡 Feedback")
+                    st.write(feedback)
 
     else:
         st.warning("Please upload resume and paste job description.")
