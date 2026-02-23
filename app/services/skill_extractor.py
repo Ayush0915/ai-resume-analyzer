@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def load_skills(file_path: str = "data/skills_database.csv") -> list:
+def load_skills(file_path: str = "skills_database.csv") -> list:
     """Load skills from CSV file"""
     df = pd.read_csv(file_path)
     skills = df["skill"].dropna().tolist()
