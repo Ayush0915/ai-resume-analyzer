@@ -1,5 +1,6 @@
 import sys
 import os
+import matplotlib.pyplot as plt
 
 # Add project root to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -65,7 +66,17 @@ if st.button("Analyze Resume"):
 
         missing_skills = get_missing_skills(resume_skills, jd_skills)
         matching_skills = get_matching_skills(resume_skills, jd_skills)
+        st.subheader("📈 Skill Comparison Chart")
 
+        labels = ["Matching Skills", "Missing Skills"]
+        values = [len(matching_skills), len(missing_skills)]
+
+        fig = plt.figure()
+        plt.bar(labels, values)
+        plt.xlabel("Skill Category")
+        plt.ylabel("Number of Skills")
+
+        st.pyplot(fig)
         feedback = generate_feedback(match_score, missing_skills)
 
     # Display Results
