@@ -4,7 +4,7 @@ import os
 # Add project root to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import streamlit as st
-
+from app.services.recommender import calculate_keyword_coverage
 from app.services.parser import parse_resume
 from app.services.skill_extractor import load_skills, extract_skills_from_text
 from app.services.similarity import calculate_similarity
@@ -52,6 +52,7 @@ if st.button("Analyze Resume"):
         # Extract skills
         resume_skills = extract_skills_from_text(resume_text, skills_list)
         jd_skills = extract_skills_from_text(job_description, skills_list)
+        keyword_score = calculate_keyword_coverage(resume_skills, jd_skills)
         st.info(f"Detected {len(resume_skills)} skills in your resume.")
         # Similarity using skills only
         resume_text_for_similarity = " ".join(resume_skills)
@@ -94,6 +95,17 @@ if st.button("Analyze Resume"):
 
         st.subheader("💡 Feedback")
         st.write(feedback)
+    st.subheader("📊 ATS Keyword Coverage")
+
+    st.progress(int(keyword_score))
+
+    if keyword_score > 70:
+        st.success(f"Strong ATS Match — {keyword_score}% keywords covered")
+    elif keyword_score > 40:
+        st.warning(f"Moderate ATS Match — {keyword_score}% keywords covered")
+    else:
+        st.error(f"Low ATS Match — {keyword_score}% keywords covered")
+        
 
 else:
     st.warning("Please upload resume and paste job description.")

@@ -27,3 +27,12 @@ def generate_feedback(match_score: float, missing_skills: list) -> str:
         feedback += "Great! You match all key skills."
 
     return feedback
+def calculate_keyword_coverage(resume_skills: list, jd_skills: list) -> float:
+    if not jd_skills:
+        return 0.0
+
+    matched = len(set(resume_skills).intersection(set(jd_skills)))
+    total = len(set(jd_skills))
+
+    coverage = (matched / total) * 100
+    return round(coverage, 2)
