@@ -38,8 +38,11 @@ if st.button("Analyze Resume"):
 
     if uploaded_file and job_description:
 
-        # Save uploaded file temporarily
+        # Create data folder if it doesn't exist
+        os.makedirs("data", exist_ok=True)
+
         file_path = os.path.join("data", uploaded_file.name)
+
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
