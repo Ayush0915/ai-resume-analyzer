@@ -1,6 +1,5 @@
 import sys
 import os
-import pandas as pd
 import streamlit as st
 
 # Add project root to Python path
@@ -17,6 +16,7 @@ from app.services.skill_extractor import load_skills, extract_skills_from_text
 from app.services.similarity import calculate_similarity
 from app.services.skill_gap_analyzer import classify_skill_gaps
 
+
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 st.title("🚀 AI-Powered Resume Analyzer")
@@ -24,10 +24,12 @@ st.title("🚀 AI-Powered Resume Analyzer")
 uploaded_file = st.file_uploader("Upload Your Resume (PDF or DOCX)", type=["pdf", "docx"])
 job_description = st.text_area("Paste Job Description Here")
 
+
 if st.button("Analyze Resume"):
 
     if uploaded_file and job_description:
 
+        # Save uploaded file
         os.makedirs("data", exist_ok=True)
         file_path = os.path.join("data", uploaded_file.name)
 
@@ -57,8 +59,9 @@ if st.button("Analyze Resume"):
         )
 
         missing_skills = get_missing_skills(resume_skills, jd_skills)
-        gap_analysis = classify_skill_gaps(missing_skills, jd_skills)
         matching_skills = get_matching_skills(resume_skills, jd_skills)
+
+        gap_analysis = classify_skill_gaps(missing_skills, jd_skills)
 
         feedback = generate_feedback(match_score, missing_skills)
 
@@ -68,6 +71,7 @@ if st.button("Analyze Resume"):
 
         st.info(f"Detected {len(resume_skills)} skills in your resume.")
 
+        # Match Score
         st.subheader("📊 Match Score")
         st.progress(int(match_score))
 
@@ -78,6 +82,7 @@ if st.button("Analyze Resume"):
         else:
             st.error(f"Low Match — {match_score}%")
 
+        # ATS Score
         st.subheader("📊 ATS Keyword Coverage")
         st.progress(int(keyword_score))
 
@@ -88,27 +93,20 @@ if st.button("Analyze Resume"):
         else:
             st.error(f"Low ATS Match — {keyword_score}% keywords covered")
 
-        # Metrics Layout
+        # Skill Summary Metrics
         st.subheader("📊 Skill Summary")
         col1, col2 = st.columns(2)
 
         col1.metric("✅ Matching Skills", len(matching_skills))
         col2.metric("❌ Missing Skills", len(missing_skills))
 
-        # Clean Streamlit Bar Chart
-        chart_data = pd.DataFrame({
-            "Category": ["Matching Skills", "Missing Skills"],
-            "Count": [len(matching_skills), len(missing_skills)]
-        })
-
-        st.bar_chart(chart_data.set_index("Category"))
-
         # Skill Lists
         col1, col2 = st.columns(2)
 
         with col1:
             st.subheader("✅ Matching Skills")
-            st.write(matching_skills)
+            for skill in matching_skills:
+                st.success(skill.upper())
 
         with col2:
             st.subheader("🎯 Skill Gap Severity Analysis")
@@ -128,8 +126,9 @@ if st.button("Analyze Resume"):
                 for skill in gap_analysis["optional"]:
                     st.markdown(f"- {skill.upper()}")
 
-                    st.subheader("💡 Feedback")
-                    st.write(feedback)
+        # Feedback (Only Once)
+        st.subheader("💡 Feedback")
+        st.info(feedback)
 
     else:
         st.warning("Please upload resume and paste job description.")
