@@ -5,8 +5,16 @@ import nltk
 import re
 
 # Download once (only first run)
-nltk.download("punkt")
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+    
 # Load model once globally
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
