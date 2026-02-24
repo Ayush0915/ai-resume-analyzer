@@ -1,16 +1,4 @@
-def classify_skill_gaps(missing_skills, jd_skills):
-    """
-    Classify missing skills into Critical, Important, Optional
-    """
-
-    core_skills = [
-        "python",
-        "machine learning",
-        "sql",
-        "deep learning",
-        "data structures",
-        "algorithms"
-    ]
+def classify_skill_gaps(missing_skills, jd_skills, jd_text):
 
     classification = {
         "critical": [],
@@ -18,12 +6,16 @@ def classify_skill_gaps(missing_skills, jd_skills):
         "optional": []
     }
 
+    jd_text = jd_text.lower()
+
     for skill in missing_skills:
 
-        if skill in core_skills:
+        frequency = jd_text.count(skill)
+
+        if frequency >= 2:
             classification["critical"].append(skill)
 
-        elif len(jd_skills) <= 5:
+        elif frequency == 1:
             classification["important"].append(skill)
 
         else:
