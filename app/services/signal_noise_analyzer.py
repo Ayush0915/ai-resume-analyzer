@@ -1,5 +1,5 @@
 import re
-import nltk
+
 
 WEAK_PHRASES = [
     "responsible for",
@@ -22,11 +22,12 @@ STRONG_VERBS = [
 ]
 
 
+def simple_sentence_split(text: str):
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    return [s.strip() for s in sentences if len(s.strip()) > 15]
+
+
 def extract_relevant_sections(text: str):
-    """
-    Extract only project / experience sections.
-    Heuristic-based section filtering.
-    """
 
     lines = text.split("\n")
     capture = False
@@ -35,12 +36,10 @@ def extract_relevant_sections(text: str):
     for line in lines:
         lower = line.lower()
 
-        # Start capturing when relevant section appears
         if any(keyword in lower for keyword in ["experience", "project", "internship", "work"]):
             capture = True
             continue
 
-        # Stop capturing at education section
         if "education" in lower:
             capture = False
 
@@ -53,8 +52,7 @@ def extract_relevant_sections(text: str):
 def analyze_signal_to_noise(resume_text: str):
 
     relevant_text = extract_relevant_sections(resume_text)
-
-    sentences = nltk.sent_tokenize(relevant_text)
+    sentences = simple_sentence_split(relevant_text)
 
     if not sentences:
         return {
@@ -74,25 +72,19 @@ def analyze_signal_to_noise(resume_text: str):
     for sentence in sentences:
         s = sentence.lower()
 
-        # Weak phrase detection
         for phrase in WEAK_PHRASES:
             if phrase in s:
                 weak_count += 1
                 weak_found.append(phrase)
 
-        # Strong verb detection
         for verb in STRONG_VERBS:
             if re.search(r'\b' + verb + r'\b', s):
                 strong_count += 1
                 strong_found.append(verb)
 
-        # Quantification detection
         if re.search(r'\d+%|\d+\+|\$\d+|\d+\s?(users|clients|logs|projects|models|apps)', s):
             quantified_count += 1
 
-    # -----------------------------
-    # PROPORTIONAL SCORING LOGIC
-    # -----------------------------
     total_sentences = len(sentences)
 
     weak_ratio = weak_count / total_sentences
@@ -100,10 +92,10 @@ def analyze_signal_to_noise(resume_text: str):
     quant_ratio = quantified_count / total_sentences
 
     clarity_score = (
-        60                        # base score
-        - (weak_ratio * 40)       # heavy penalty
-        + (strong_ratio * 25)     # moderate reward
-        + (quant_ratio * 25)      # moderate reward
+        60
+        - (weak_ratio * 40)
+        + (strong_ratio * 25)
+        + (quant_ratio * 25)
     )
 
     clarity_score = max(0, min(100, round(clarity_score, 2)))
