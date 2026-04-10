@@ -117,5 +117,20 @@ This differentiates the system from typical resume analyzers.
 ```bash
 git clone https://github.com/Ayush0915/ai-resume-analyzer.git
 cd ai-resume-analyzer
-pip install -r requirements.txt
 streamlit run frontend/streamlit_app.py
+```
+
+---
+
+### 🚀 Recent Upgrades
+
+#### ✅ Upgrade #1: UI/UX Dashboard Transformation
+
+- **What was added:**
+  - Organized the deeply nested, vertical results layout into 4 clean, distinct tabs: Overview, Skill Analysis, Semantic Alignment, and Writing Quality.
+- **Files changed:**
+  - `frontend/streamlit_app.py`
+- **Why it matters:**
+  - Dramatically improves readability, makes the tool feel more like a premium software product, and provides a polished experience for end-users (and recruiters).
+- **How to use:**
+  - Run the application as usual. Upload a resume and scan it to explore the new tabbed interface.

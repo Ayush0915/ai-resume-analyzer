@@ -91,103 +91,99 @@ if st.button("Analyze Resume"):
         feedback = generate_feedback(match_score, missing_skills)
 
         # ==========================
-        # DISPLAY SECTION
+        # DISPLAY SECTION (TABS)
         # ==========================
-
+        
         st.info(f"Detected {len(resume_skills)} skills in your resume.")
+        
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "📊 Overview", 
+            "🎯 Skill Analysis", 
+            "🧠 Semantic Alignment", 
+            "🧾 Writing Quality"
+        ])
+        
+        with tab1:
+            st.subheader("💡 Intelligent Feedback")
+            st.info(feedback)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("📊 Semantic Match")
+                st.progress(int(match_score))
+                if match_score >= 75:
+                    st.success(f"Strong Alignment — {match_score}%")
+                elif match_score >= 50:
+                    st.warning(f"Moderate Alignment — {match_score}%")
+                else:
+                    st.error(f"Low Alignment — {match_score}%")
+                    
+            with col2:
+                st.subheader("📊 ATS Keyword Coverage")
+                st.progress(int(keyword_score))
+                if keyword_score >= 75:
+                    st.success(f"Strong Match — {keyword_score}% keywords")
+                elif keyword_score >= 50:
+                    st.warning(f"Moderate Match — {keyword_score}% keywords")
+                else:
+                    st.error(f"Low Match — {keyword_score}% keywords")
 
-        # --------------------------
-        # MATCH SCORE
-        # --------------------------
-        st.subheader("📊 Semantic Match Score")
-        st.progress(int(match_score))
+        with tab2:
+            st.subheader("📊 Skill Summary")
+            col1, col2 = st.columns(2)
+            col1.metric("✅ Matching Skills", len(matching_skills))
+            col2.metric("❌ Missing Skills", len(missing_skills))
+            
+            col_match, col_gap = st.columns(2)
+            with col_match:
+                st.subheader("✅ Matching Skills")
+                for skill in matching_skills:
+                    st.success(skill.upper())
+                    
+            with col_gap:
+                st.subheader("🎯 Skill Gap Severity Analysis")
+                if gap_analysis["critical"]:
+                    st.error("🔴 Critical Skills Missing")
+                    for skill in gap_analysis["critical"]:
+                        st.markdown(f"- **{skill.upper()}**")
+                if gap_analysis["important"]:
+                    st.warning("🟡 Important Skills Missing")
+                    for skill in gap_analysis["important"]:
+                        st.markdown(f"- {skill.upper()}")
+                if gap_analysis["optional"]:
+                    st.info("🟢 Optional Skills Missing")
+                    for skill in gap_analysis["optional"]:
+                        st.markdown(f"- {skill.upper()}")
 
-        if match_score >= 75:
-            st.success(f"Strong Alignment — {match_score}%")
-        elif match_score >= 50:
-            st.warning(f"Moderate Alignment — {match_score}%")
-        else:
-            st.error(f"Low Alignment — {match_score}%")
+        with tab3:
+            st.subheader("🔍 Top Matching Resume Segments")
+            st.write("These are the sentences in your resume that most strongly align with the job description:")
+            if top_matches:
+                for sentence, score in top_matches:
+                    st.markdown(f"**{score}%** — {sentence}")
+            else:
+                st.info("No strong semantic matches detected.")
 
-        # 🔍 Top Matching Sentences
-        st.subheader("🔍 Top Matching Resume Segments")
-
-        if top_matches:
-            for sentence, score in top_matches:
-                st.markdown(f"**{score}%** — {sentence}")
-        else:
-            st.info("No strong semantic matches detected.")
-
-        # --------------------------
-        # ATS SCORE
-        # --------------------------
-        st.subheader("📊 ATS Keyword Coverage")
-        st.progress(int(keyword_score))
-
-        if keyword_score >= 75:
-            st.success(f"Strong ATS Match — {keyword_score}% keywords covered")
-        elif keyword_score >= 50:
-            st.warning(f"Moderate ATS Match — {keyword_score}% keywords covered")
-        else:
-            st.error(f"Low ATS Match — {keyword_score}% keywords covered")
-
-        # --------------------------
-        # SKILL SUMMARY
-        # --------------------------
-        st.subheader("📊 Skill Summary")
-
-        col1, col2 = st.columns(2)
-        col1.metric("✅ Matching Skills", len(matching_skills))
-        col2.metric("❌ Missing Skills", len(missing_skills))
-
-        # --------------------------
-        # SKILL LISTS
-        # --------------------------
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.subheader("✅ Matching Skills")
-            for skill in matching_skills:
-                st.success(skill.upper())
-
-        with col2:
-            st.subheader("🎯 Skill Gap Severity Analysis")
-
-            if gap_analysis["critical"]:
-                st.error("🔴 Critical Skills Missing")
-                for skill in gap_analysis["critical"]:
-                    st.markdown(f"- **{skill.upper()}**")
-
-            if gap_analysis["important"]:
-                st.warning("🟡 Important Skills Missing")
-                for skill in gap_analysis["important"]:
-                    st.markdown(f"- {skill.upper()}")
-
-            if gap_analysis["optional"]:
-                st.info("🟢 Optional Skills Missing")
-                for skill in gap_analysis["optional"]:
-                    st.markdown(f"- {skill.upper()}")
-
-        # --------------------------
-        # FEEDBACK
-        # --------------------------
-        st.subheader("💡 Intelligent Feedback")
-        st.info(feedback)
-        st.subheader("🧠 Resume Signal-to-Noise Analysis")
-
-        st.metric("Resume Clarity Score", f"{signal_result['clarity_score']}/100")
-
-        if signal_result["weak_phrases_found"]:
-            st.warning("⚠ Weak Phrases Detected:")
-            for phrase in signal_result["weak_phrases_found"]:
-                st.markdown(f"- {phrase}")
-
-        if signal_result["strong_verbs_found"]:
-            st.success("💪 Strong Action Verbs Used:")
-            for verb in signal_result["strong_verbs_found"]:
-                st.markdown(f"- {verb}")
-
-        st.info(f"📊 Quantified Achievements Detected: {signal_result['quantified_sentences']}")
+        with tab4:
+            st.subheader("🧠 Resume Signal-to-Noise Analysis")
+            st.metric("Resume Clarity Score", f"{signal_result['clarity_score']}/100")
+            
+            st.info(f"📊 Quantified Achievements Detected: {signal_result['quantified_sentences']}")
+            
+            col_weak, col_strong = st.columns(2)
+            with col_weak:
+                if signal_result["weak_phrases_found"]:
+                    st.warning("⚠ Weak Phrases Detected:")
+                    for phrase in signal_result["weak_phrases_found"]:
+                        st.markdown(f"- {phrase}")
+                else:
+                    st.success("No weak phrases detected!")
+                    
+            with col_strong:
+                if signal_result["strong_verbs_found"]:
+                    st.success("💪 Strong Action Verbs Used:")
+                    for verb in signal_result["strong_verbs_found"]:
+                        st.markdown(f"- {verb}")
 
     else:
         st.warning("Please upload resume and paste job description.")
